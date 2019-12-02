@@ -46,19 +46,26 @@ client.on('message', msg => {
         very first string in the command (i.e. whatever string
         is next to the '@' symbol)
     */
-    
+
     /* try and match one of the parts with one of the voice channels */
-    let chan_id = '';                             // variable to store the channel id, if we find one that matches
-    vc.forEach((chan, id) => {                    // loop through each key/value pair in the voice channel map
-      let part = parts[0];                        // get the channel name from the user command we are trying to look for
-      part = part.toLowerCase();                  // ignore case
-      chan = chan.toLowerCase();                  // ignore case
-      let matches = chan.match(part);             // try and match strings on the queried channel name with the channel names in the server
-      if (matches != null && matches[0] != '') {  // if matches is not null and the first value in matches is not the empty string...
-        chan_id = id;                             // ...then store the id in chan_id
-        break;                                    // and break out of the loop
+    let chan_id = '';                               // variable to store the channel id, if we find one that matches
+    let part = parts[0];                            // get the channel name from the user command we are trying to look for
+    part = part.toLowerCase();                      // ignore case
+    /* special case for 'us' keyword */
+    if (part === 'us') {                            // special case if user uses the keyword 'us' instead of a channel name
+      if (msg.member.voiceChannel != null) {        // if the user is in a voice channel...  
+          chan_id = msg.member.voiceChannelID;      // ...then set chan_id to the voice channel that the user is currently in
       }
-    });
+    } else {                                        // otherwise, if they are not using the us keyword...
+      vc.forEach((chan, id) => {                    // loop through each key/value pair in the voice channel map                        
+        chan = chan.toLowerCase();                  // ignore case
+        let matches = chan.match(part);             // try and match strings on the queried channel name with the channel names in the server
+        if (matches != null && matches[0] != '') {  // if matches is not null and the first value in matches is not the empty string...
+          chan_id = id;                             // ...then store the id in chan_id
+          return;                                   // and break out of the loop
+        }
+      });
+    }
 
     /* get users from channel */
     let users = [];                               // array to store users in the from the voice channel
@@ -69,16 +76,20 @@ client.on('message', msg => {
         users.push(user.id);                      // push the user id onto the array
       });
 
+      /* purge author id from the users array */
+      var author_index = users.indexOf(msg.author.id);  // get index where the author's id is
+      if (author_index > -1) {                          // if it is in the array...
+        users.splice(author_index, 1);                  // ...remove it from the array
+      }
+
       /* construct message */
       let send_msg = `<@${msg.author.id}> says: `;  // credit original author of the message
       for (var i = 0; i < users.length; i++) {      // loop through users array
         let id = users[i];                          // get id of the user from the array at i
-        if (msg.author.id !== id) {                 // if the author is in the channel, do not need to mention them a 2nd time
-          if (i === users.length - 1) {             // if we are at the last id in the array...
-            send_msg += `<@${id}> `;                // ...don't add a comma
-          } else {                                  // otherwise...
-            send_msg += `<@${id}>, `;               // ...add a comma in between names
-          }
+        if (i === users.length - 1) {               // if we are at the last id in the array...
+          send_msg += `<@${id}> `;                  // ...don't add a comma
+        } else {                                    // otherwise...
+          send_msg += `<@${id}>, `;                 // ...add a comma in between names
         }
       }
       for (var i = 1; i < parts.length; i++) {      // loop through the rest of the original message content
