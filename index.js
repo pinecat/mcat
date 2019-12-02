@@ -1,17 +1,26 @@
+/* imports */
 const Discord = require('discord.js');
+const fs = require('fs');
+
+/* read token from file */
+const token = fs.readFileSync('token.txt', 'utf8');
+
+/* create discord client (i.e. the bot) */
 const client = new Discord.Client();
 
+/* log some text to the console when the bot is ready */
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
+/* rules for parsing messages */
 client.on('message', msg => {
-  // ignore messages from bots or from ourselves
+  /* ignore messages from bots or from ourselves */
   if (msg.author.bot || msg.author.id === msg.client.id) {
     return;
   }
 
-  // get voice channels, add names/ids to vc map
+  /* get voice channels, add names/ids to vc map */
   let vc = new Map();
   msg.guild.channels.forEach(channel => {
     if (channel.type === 'voice') {
@@ -19,14 +28,14 @@ client.on('message', msg => {
     }
   });
 
-  // get msg content if begins with @ and split it to get parts
+  /* get msg content if begins with @ and split it to get parts */
   let parts = [];
   if (msg.content.startsWith('@')) {
     parts = msg.content.split('@');
     parts = parts[1].split(' ');
   }
 
-  // try and match one of the parts with one of the voice channels
+  /* try and match one of the parts with one of the voice channels */
   let chan_id = '';
   vc.forEach((chan, id) => {
     let part = parts[0];
@@ -38,7 +47,7 @@ client.on('message', msg => {
     }
   });
 
-  // get users from channel
+  /* get users from channel */
   let users = [];
   if (chan_id != '') {
     let chan = msg.guild.channels.get(chan_id);
@@ -47,7 +56,7 @@ client.on('message', msg => {
       users.push(user.id);
     });
 
-    // construct message
+    /* construct message */
     let send_msg = `<@${msg.author.id}> says: `;
     for (var i = 0; i < users.length; i++) {
       let id = users[i];
@@ -63,12 +72,13 @@ client.on('message', msg => {
       send_msg += parts[i] + ' ';
     }
 
-    // delete original message from user
+    /* delete original message from user */
     msg.delete(1);
 
-    // send message
+    /* send message */
     msg.channel.send(send_msg);
   }
 });
 
-client.login('token');
+/* login the bot */
+client.login(token);
