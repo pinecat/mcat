@@ -9,5 +9,6 @@ So, if you have a voice channel named `The Commons`, you can mention it by doing
 
 If you are in a voice channel, you can also use `@us` to mention all the people of the voice chat you're currently in.
 
-To use this bot yourself, create a file called 'token.txt', and place your bot token in that file.
+This bot is created with nodejs.
+To run this bot yourself, create a file called 'token.txt', and place your bot token in that file.
 Then, simply run the command: `node .` in order to start the bot.
