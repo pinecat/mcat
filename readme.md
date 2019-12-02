@@ -1,7 +1,7 @@
 # The Mention Cat (mcat)
 #### by pinecat
 
-Discord bot for mentioning all users in a voice channel.
+Discord bot for mentioning all users in a voice channel.  You can add it [here](https://discordapp.com/api/oauth2/authorize?client_id=650838068118683678&permissions=134144&scope=bot).
 
 To use the bot in Discord, use the '@' symbol, followed directly by the name of the channel.
 The bot cannot account for voice channels with spaces in them, but it can string match pretty well.
