@@ -8,9 +8,7 @@
 /* imports */
 const Discord = require('discord.js');
 const fs = require('fs');
-
-/* read token from file */
-const token = fs.readFileSync('token.txt', 'utf8');
+const token_data = require('./token.json');
 
 /* create discord client (i.e. the bot) */
 const client = new Discord.Client();
@@ -106,4 +104,4 @@ client.on('message', msg => {
 });
 
 /* login the bot */
-client.login(token);
+client.login(token_data.token);
